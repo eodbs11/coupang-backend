@@ -1,29 +1,48 @@
 package com.kh.coupang.service;
 
 import com.kh.coupang.domain.Product;
+import com.kh.coupang.repo.ProductDAO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class ProductService {
 
+    @Autowired
+    private ProductDAO dao;
+
     public List<Product> viewAll() {
-        return null;
+        return dao.findAll();
+    }
+
+    public List<Product> viewCategory(int code) {
+        return dao.findByCateCode(code);
     }
 
     public Product view(int code) {
-        return null;
+        return dao.findById(code).orElse(null);
     }
 
     public Product create(Product vo) {
-        return null;
+        return dao.save(vo);
     }
 
     public Product update(Product vo) {
+        if (dao.existsById(vo.getProdCode())) {
+            return dao.save(vo);
+        }
         return null;
     }
 
     public Product delete(int code) {
-        return null;
+        Product target = dao.findById(code).orElse(null);
+        if (target != null) {
+            /* dao.deleteById(code);*/
+            dao.delete(target);
+        }
+        return target;
     }
 
 }
