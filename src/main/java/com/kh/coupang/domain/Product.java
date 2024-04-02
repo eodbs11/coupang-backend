@@ -25,6 +25,9 @@ public class Product {
     @Column
     private int price;
 
+    @Column(name = "prod_photo")
+    private String prodPhoto; //prod_photo
+
     //관계지정
     @ManyToOne
     @JoinColumn(name="cate_code")
