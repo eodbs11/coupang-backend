@@ -1,12 +1,15 @@
 package com.kh.coupang.Controller;
 
-import com.kh.coupang.domain.Review;
-import com.kh.coupang.domain.ReviewDTO;
-import com.kh.coupang.domain.ReviewImage;
+import com.kh.coupang.domain.*;
 import com.kh.coupang.service.ReviewService;
+import com.querydsl.core.BooleanBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -60,8 +63,6 @@ public class ReviewController {
             imgVo.setReviUrl(saveName);
             imgVo.setReview(result);
 
-
-
             log.info("fileName : " + file.getOriginalFilename());
 
             review.createImg(imgVo);
@@ -74,8 +75,11 @@ public class ReviewController {
     }
 
     @GetMapping("/review")
-    public ResponseEntity<List<Review>> viewAll() {
-        return ResponseEntity.status(HttpStatus.OK).body()
+    public ResponseEntity<List<Review>> viewAll(@RequestParam(name = "page", defaultValue = "1") int page) {
+        Sort sort = Sort.by("reviCode").descending();
+        Pageable pageable = PageRequest.of(page-1, 5, sort);
+
+        return ResponseEntity.status(HttpStatus.OK).body(review.viewAll(pageable).getContent());
     }
 
 
