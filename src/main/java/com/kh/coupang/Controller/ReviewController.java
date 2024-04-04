@@ -1,12 +1,12 @@
 package com.kh.coupang.Controller;
 
-import com.kh.coupang.domain.*;
+import com.kh.coupang.domain.Review;
+import com.kh.coupang.domain.ReviewDTO;
+import com.kh.coupang.domain.ReviewImage;
 import com.kh.coupang.service.ReviewService;
-import com.querydsl.core.BooleanBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,7 +24,6 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-// postman 8080뒤에 api
 @RequestMapping("/api/*")
 public class ReviewController {
 
@@ -51,7 +50,7 @@ public class ReviewController {
         log.info("result : " + result);
 
         // review_image에는 revi_code가 필요!
-        for (MultipartFile file : dto.getFiles()) {
+        for(MultipartFile file : dto.getFiles()) {
             ReviewImage imgVo = new ReviewImage();
 
             String fileName = file.getOriginalFilename();
@@ -63,19 +62,17 @@ public class ReviewController {
             imgVo.setReviUrl(saveName);
             imgVo.setReview(result);
 
-            log.info("fileName : " + file.getOriginalFilename());
-
             review.createImg(imgVo);
-
         }
 
         return result!=null ?
-                ResponseEntity.status(HttpStatus.CREATED).body(result):
+                ResponseEntity.status(HttpStatus.CREATED).body(result) :
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @GetMapping("/review")
-    public ResponseEntity<List<Review>> viewAll(@RequestParam(name = "page", defaultValue = "1") int page) {
+    public ResponseEntity<List<Review>> viewAll(@RequestParam(name="page", defaultValue = "1") int page) {
+
         Sort sort = Sort.by("reviCode").descending();
         Pageable pageable = PageRequest.of(page-1, 5, sort);
 

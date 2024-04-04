@@ -17,23 +17,23 @@ import java.util.List;
 public class Review {
 
     @Id
-    @Column(name = "revi_code")
+    @Column(name="revi_code")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int reviCode;
 
     @Column
     private String id;
 
-    @Column(name = "prod_code")
+    @Column(name="prod_code")
     private int prodCode;
 
-    @Column(name = "revi_title")
+    @Column(name="revi_title")
     private String reviTitle;
 
-    @Column(name = "revi_desc")
+    @Column(name="revi_desc")
     private String reviDesc;
 
-    @Column(name = "revi_date")
+    @Column(name="revi_date")
     private Date reviDate;
 
     @Column
