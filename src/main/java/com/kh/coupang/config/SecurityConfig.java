@@ -18,23 +18,24 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // 특정 Http 요청에 대한 웹 기반 보안 구성. 인증/인가 및 로그아웃 설정
+    // 특정 HTTP 요청에 대한 웹 기반 보안 구성. 인증/인가 및 로그아웃 설정
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
                 .httpBasic(basic -> basic.disable())
                 .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(authorize ->
-                    authorize
-                        .requestMatchers("/signUp", "/login").permitAll()
-                            .requestMatchers("/api/product").hasRole("USER")
-                        .anyRequest().authenticated()
+                        authorize
+                                .requestMatchers("/signUp", "/login", "/api/public/**").permitAll()
+                                .requestMatchers("/api/product").hasRole("USER")
+                                .anyRequest().authenticated()
                 )
                 .addFilterAfter(jwtAuthenticationFilter, CorsFilter.class)
                 .build();
     }
+
 
 }
