@@ -56,7 +56,7 @@ public class ReviewController {
         log.info("result : " + result);
 
         // review_image에는 revi_code가 필요!
-        for(MultipartFile file : dto.getFiles()) {
+        for (MultipartFile file : dto.getFiles()) {
             ReviewImage imgVo = new ReviewImage();
 
             String fileName = file.getOriginalFilename();
@@ -71,16 +71,16 @@ public class ReviewController {
             review.createImg(imgVo);
         }
 
-        return result!=null ?
+        return result != null ?
                 ResponseEntity.status(HttpStatus.CREATED).body(result) :
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @GetMapping("/public/review")
-    public ResponseEntity<List<Review>> viewAll(@RequestParam(name="page", defaultValue = "1") int page) {
+    public ResponseEntity<List<Review>> viewAll(@RequestParam(name = "page", defaultValue = "1") int page) {
 
         Sort sort = Sort.by("reviCode").descending();
-        Pageable pageable = PageRequest.of(page-1, 5, sort);
+        Pageable pageable = PageRequest.of(page - 1, 5, sort);
 
         return ResponseEntity.status(HttpStatus.OK).body(review.viewAll(pageable).getContent());
     }
@@ -90,7 +90,7 @@ public class ReviewController {
 
         Object principal = authentication();
 
-        if(principal instanceof User) {
+        if (principal instanceof User) {
             User user = (User) principal;
             vo.setUser(user);
             return ResponseEntity.ok(comment.create(vo));
@@ -106,16 +106,16 @@ public class ReviewController {
     }
 
     @GetMapping("/public/review/{code}/comment")
-    public ResponseEntity<List<ReviewCommentDTO>> viewComments(@PathVariable(name="code") int code) {
+    public ResponseEntity<List<ReviewCommentDTO>> viewComments(@PathVariable(name = "code") int code) {
         List<ReviewComment> list = comment.getTopLevelComments(code);
         List<ReviewCommentDTO> response = new ArrayList<>();
 
-        for(ReviewComment item : list) {
+        for (ReviewComment item : list) {
 
             List<ReviewComment> comments = comment.getRepliesComments(item.getReviComCode(), code);
             List<ReviewCommentDTO> replies = new ArrayList<>();
 
-            for(ReviewComment comment : comments) {
+            for (ReviewComment comment : comments) {
                 ReviewCommentDTO dto = ReviewCommentDTO.builder()
                         .reviCode(comment.getReviCode())
                         .reviComCode(comment.getReviComCode())

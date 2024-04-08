@@ -69,9 +69,9 @@ public class ProductController {
     }
 
     @GetMapping("/product")
-    public ResponseEntity<List<Product>> viewAll(@RequestParam(name="category", required = false) Integer category, @RequestParam(name="page", defaultValue = "1") int page) {
+    public ResponseEntity<List<Product>> viewAll(@RequestParam(name = "category", required = false) Integer category, @RequestParam(name = "page", defaultValue = "1") int page) {
         Sort sort = Sort.by("prodCode").descending();
-        Pageable pageable = PageRequest.of(page-1, 10, sort);
+        Pageable pageable = PageRequest.of(page - 1, 10, sort);
 
         // QueryDSL
         // 1. 가장 먼저 동적 처리하기 위한 Q도메인 클래스 얻어오기
@@ -81,7 +81,7 @@ public class ProductController {
         // 2. BooleanBuilder : where문에 들어가는 조건들을 넣어주는 컨테이너
         BooleanBuilder builder = new BooleanBuilder();
 
-        if(category!=null) {
+        if (category != null) {
             // 3. 원하는 조건은 필드값과 같이 결합해서 생성
             BooleanExpression expression = qProduct.category.cateCode.eq(category);
 
@@ -110,7 +110,7 @@ public class ProductController {
         // 기존 데이터를 가져와야 하는 상황!
         Product prev = product.view(dto.getProdCode());
 
-        if(dto.getFile().isEmpty()) {
+        if (dto.getFile().isEmpty()) {
             // 만약 새로운 사진이 없는 경우 -> 기존 사진 경로 그대로 vo로 담아내야 한다!
             vo.setProdPhoto(prev.getProdPhoto());
         } else {
@@ -135,7 +135,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/product/{code}")
-    public ResponseEntity<Product> delete(@PathVariable(name="code") int code) {
+    public ResponseEntity<Product> delete(@PathVariable(name = "code") int code) {
         // 파일 삭제 로직
         Product prev = product.view(code);
         File file = new File(prev.getProdPhoto());
@@ -163,7 +163,7 @@ public class ProductController {
         Authentication authentication = securityContext.getAuthentication();
         Object principal = authentication.getPrincipal();
 
-        if(principal instanceof User) {
+        if (principal instanceof User) {
             User user = (User) principal;
             vo.setUser(user);
             return ResponseEntity.ok(comment.create(vo));
@@ -174,43 +174,37 @@ public class ProductController {
 
     // 상품 1개에 따른 댓글 조회 -> 전체 다 보여줘야 하는 상황!
     @GetMapping("/public/product/{code}/comment")
-    public ResponseEntity<List<ProductCommentDTO>> viewComment(@PathVariable(name="code") int code) {
+    public ResponseEntity<List<ProductCommentDTO>> viewComment(@PathVariable(name = "code") int code) {
         List<ProductComment> topList = comment.getTopLevelComments(code);
-        List<ProductCommentDTO> response = new ArrayList<>();
-
-        for(ProductComment top : topList) {
-            List<ProductComment> replies = comment.getRepliesComments(top.getProComCode(), code); // 하위 댓글들
-            List<ProductCommentDTO> repliesDTO = new ArrayList<>();
-
-            for(ProductComment reply : replies) {
-                ProductCommentDTO dto = ProductCommentDTO.builder()
-                        .prodCode(reply.getProdCode())
-                        .proComCode(reply.getProComCode())
-                        .proComDesc(reply.getProComDesc())
-                        .proComDate(reply.getProComDate())
-                        .user(UserDTO.builder()
-                                .id(reply.getUser().getId())
-                                .name(reply.getUser().getName())
-                                .build())
-                        .build();
-                repliesDTO.add(dto);
-            }
-
-            ProductCommentDTO dto = ProductCommentDTO.builder()
-                    .prodCode(top.getProdCode())
-                    .proComCode(top.getProComCode())
-                    .proComDesc(top.getProComDesc())
-                    .proComDate(top.getProComDate())
-                    .user(UserDTO.builder()
-                            .id(top.getUser().getId())
-                            .name(top.getUser().getName())
-                            .build())
-                    .replies(repliesDTO)
-                    .build();
-            response.add(dto);
-        }
+        List<ProductCommentDTO> response = commentDetailList(topList, code);
 
         return ResponseEntity.ok(response);
+    }
+
+    public List<ProductCommentDTO> commentDetailList(List<ProductComment> comments, int code){
+        List<ProductCommentDTO> response = new ArrayList<>();
+
+        for (ProductComment item : comments) {
+            List<ProductComment> replies = comment.getRepliesComments(item.getProComCode(), code);
+            List<ProductCommentDTO> repliesDTO = commentDetailList(replies, code);
+            ProductCommentDTO dto = commentDetail(item);
+            dto.setReplies(repliesDTO);
+            response.add(dto);
+        }
+            return response;
+    }
+
+    public ProductCommentDTO commentDetail(ProductComment vo){
+        return ProductCommentDTO.builder()
+                .prodCode(vo.getProdCode())
+                .proComCode(vo.getProComCode())
+                .proComDesc(vo.getProComDesc())
+                .proComDate(vo.getProComDate())
+                .user(UserDTO.builder()
+                        .id(vo.getUser().getId())
+                        .name(vo.getUser().getName())
+                        .build())
+                .build();
     }
 
 

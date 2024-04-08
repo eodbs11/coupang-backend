@@ -25,12 +25,12 @@ public class ProductCommentService {
         return dao.save(vo);
     }
 
-    // 상품 1개당 댓글 조회 --> 얘는 안씁니다!
+    // 상품 1개당 댓글 조회 --> 안 씀
     public List<ProductComment> findByProdCode(int code) {
         return dao.findByProdCode(code);
     }
 
-    // 상위 댓글만 조회 -> SQL문 짜보세요!
+    // 상위 댓글만 조회
     /*
      * SELECT * FROM product_comment
      * WHERE pro_com_parent = 0
@@ -59,7 +59,6 @@ public class ProductCommentService {
                 .orderBy(qProductComment.proComDate.asc())
                 .fetch();
     }
-
 
 
 }
