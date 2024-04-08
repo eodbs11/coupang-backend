@@ -59,3 +59,4 @@ public class QReviewComment extends EntityPathBase<ReviewComment> {
     }
 
 }
+

@@ -1,5 +1,6 @@
 package com.kh.coupang.service;
 
+import com.kh.coupang.domain.ProductComment;
 import com.kh.coupang.domain.QProductComment;
 import com.kh.coupang.repo.ProductCommentDAO;
 import com.querydsl.jpa.impl.JPAQueryFactory;

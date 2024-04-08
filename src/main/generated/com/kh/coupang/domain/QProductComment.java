@@ -59,3 +59,4 @@ public class QProductComment extends EntityPathBase<ProductComment> {
     }
 
 }
+

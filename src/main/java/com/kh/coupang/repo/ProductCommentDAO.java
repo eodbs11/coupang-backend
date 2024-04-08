@@ -1,5 +1,6 @@
 package com.kh.coupang.repo;
 
+import com.kh.coupang.domain.ProductComment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
