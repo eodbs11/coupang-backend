@@ -24,18 +24,24 @@ public class User implements UserDetails {
 
     @Id
     private String id;
+
     @Column
     private String password;
+
     @Column
     private String name;
+
     @Column
     private String phone;
+
     @Column
     private String address;
+
     @Column
     private String email;
+
     @Column
-    private String role;
+    private String role; // 권한 관련 컬럼
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

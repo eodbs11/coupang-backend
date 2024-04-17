@@ -21,7 +21,7 @@ public class TokenProvider {
     public String create(User user) {
         return Jwts.builder()
                 .signWith(secretKey)
-                /*.setSubject(user.getId())*/
+                //.setSubject(user.getId())
                 .setClaims(Map.of(
                         "id", user.getId(),
                         "name", user.getName(),
@@ -36,8 +36,7 @@ public class TokenProvider {
     public User validateGetUser(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody();
+                .parseClaimsJws(token).getBody();
         return User.builder()
                 .id((String) claims.get("id"))
                 .name((String) claims.get("name"))
@@ -45,5 +44,6 @@ public class TokenProvider {
                 .role((String) claims.get("role"))
                 .build();
     }
+
 
 }

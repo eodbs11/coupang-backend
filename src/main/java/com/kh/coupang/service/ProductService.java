@@ -33,7 +33,7 @@ public class ProductService {
     }
 
     public Product update(Product vo) {
-        if (dao.existsById(vo.getProdCode())) {
+        if(dao.existsById(vo.getProdCode())) {
             return dao.save(vo);
         }
         return null;
@@ -41,11 +41,12 @@ public class ProductService {
 
     public Product delete(int code) {
         Product target = dao.findById(code).orElse(null);
-        if (target != null) {
-            /* dao.deleteById(code);*/
+        if(target!=null) {
+            //dao.deleteById(code);
             dao.delete(target);
         }
         return target;
     }
+
 
 }

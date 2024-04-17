@@ -11,13 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProductDTO {
 
     private int prodCode;
-
     private String prodName;
-
     private int price;
-
     private MultipartFile file;
-
     private int cateCode;
 
 }

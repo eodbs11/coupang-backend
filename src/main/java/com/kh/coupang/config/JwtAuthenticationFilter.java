@@ -19,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+
 @Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -31,18 +32,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 클라이언트에서 보낸 토큰을 받아서 사용자 확인 후 인증 처리
         String token = parseBearerToken(request);
         log.info("token : " + token);
-        if (token != null && !token.equalsIgnoreCase("null")) {
+        if(token!=null && !token.equalsIgnoreCase("null")) {
             User user = tokenProvider.validateGetUser(token);
 
-            // 추출된 인증 정보를 필터링에 사용될수 있도록 context에 등록
+            // 추출된 인증 정보를 필터링에 사용할 수 있도록 SecurityContext에 등록
             AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
             securityContext.setAuthentication(authentication);
 
-            SecurityContextHolder. setContext(securityContext);
-            //인증 관련
+            SecurityContextHolder.setContext(securityContext);
         }
         filterChain.doFilter(request, response);
     }
@@ -50,10 +50,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String parseBearerToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
 
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
+        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
             return bearerToken.substring(7);
         }
+
         return null;
     }
-
 }

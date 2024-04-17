@@ -10,24 +10,22 @@ import org.hibernate.annotations.DynamicInsert;
 import java.util.Date;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Data @NoArgsConstructor @AllArgsConstructor
 @DynamicInsert
 public class ReviewComment {
 
     @Id
-    @Column(name = "revi_com_code")
+    @Column(name="revi_com_code")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int reviComCode;
 
-    @Column(name = "revi_com_desc")
+    @Column(name="revi_com_desc")
     private String reviComDesc;
 
-    @Column(name = "revi_com_date")
+    @Column(name="revi_com_date")
     private Date reviComDate;
 
-    @Column(name = "revi_com_parent")
+    @Column(name="revi_com_parent")
     private int reviComParent;
 
     @JsonIgnore
@@ -36,10 +34,10 @@ public class ReviewComment {
     private ReviewComment parent;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name="id")
     private User user;
 
-    @Column(name = "revi_code")
+    @Column(name="revi_code")
     private int reviCode;
 
 }

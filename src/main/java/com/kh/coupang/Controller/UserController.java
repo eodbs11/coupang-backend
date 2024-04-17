@@ -8,11 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@CrossOrigin(origins = {"*"}, maxAge = 6000)
 public class UserController {
 
     @Autowired
@@ -37,7 +39,6 @@ public class UserController {
                 .build();
 
         User result = userService.create(user);
-
         UserDTO responseDTO = UserDTO.builder()
                 .id(result.getId())
                 .name(result.getName())
@@ -48,7 +49,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody User vo) {
         User user = userService.login(vo.getId(), vo.getPassword(), passwordEncoder);
-        if (user != null) {
+        if(user!=null) {
             // 로그인 성공 -> 토큰 생성
             String token = tokenProvider.create(user);
             UserDTO responseDTO = UserDTO.builder()
@@ -58,7 +59,7 @@ public class UserController {
                     .build();
             return ResponseEntity.ok().body(responseDTO);
         }
-            // 로그인 실패
+        // 로그인 실패
         return ResponseEntity.badRequest().build();
     }
 }

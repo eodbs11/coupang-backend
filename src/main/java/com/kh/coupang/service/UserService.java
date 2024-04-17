@@ -10,19 +10,20 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     @Autowired
-    private UserDAO userDAO;
+    private UserDAO userDao;
 
     // 회원가입
     public User create(User user) {
-        return userDAO.save(user);
+        return userDao.save(user);
     }
 
     // 로그인 - 사용자 확인
     public User login(String id, String password, PasswordEncoder encoder) {
-        User user = userDAO.findById(id).orElse(null);
-        if (user != null && encoder.matches(password, user.getPassword())) {
+        User user = userDao.findById(id).orElse(null);
+        if(user!=null && encoder.matches(password, user.getPassword())) {
             return user;
         }
         return null;
     }
+
 }

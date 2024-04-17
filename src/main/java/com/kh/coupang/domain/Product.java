@@ -14,21 +14,19 @@ import org.hibernate.annotations.DynamicInsert;
 public class Product {
 
     @Id
-    @Column(name = "prod_code")
-    // 추가용
+    @Column(name="prod_code")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int prodCode; //prod_code
 
-    @Column(name = "prod_name")
+    @Column(name="prod_name")
     private String prodName; //prod_name
 
     @Column
     private int price;
 
-    @Column(name = "prod_photo")
-    private String prodPhoto; //prod_photo
+    @Column(name="prod_photo")
+    private String prodPhoto; // prod_photo
 
-    //관계지정
     @ManyToOne
     @JoinColumn(name="cate_code")
     private Category category;

@@ -1,6 +1,7 @@
 package com.kh.coupang.Controller;
 
 import com.kh.coupang.domain.*;
+import com.kh.coupang.service.CategoryService;
 import com.kh.coupang.service.ProductCommentService;
 import com.kh.coupang.service.ProductService;
 import com.querydsl.core.BooleanBuilder;
@@ -30,6 +31,7 @@ import java.util.UUID;
 @Slf4j
 @RestController
 @RequestMapping("/api/*")
+@CrossOrigin(origins = {"*"}, maxAge = 6000)
 public class ProductController {
 
     @Autowired
@@ -38,8 +40,31 @@ public class ProductController {
     @Autowired
     private ProductCommentService comment;
 
+    @Autowired
+    private CategoryService category;
+
     @Value("${spring.servlet.multipart.location}")
     private String uploadPath; // D:\\upload
+
+    // 카테고리 가져오기
+    @GetMapping("/public/category")
+    public ResponseEntity<List<CategoryDTO>> categoryView() {
+        List<Category> topList = category.getTopLevelCategory();
+        List<CategoryDTO> response = new ArrayList<>();
+
+        for(Category item : topList) {
+            CategoryDTO dto = CategoryDTO.builder()
+                    .cateIcon(item.getCateIcon())
+                    .cateName(item.getCateName())
+                    .cateCode(item.getCateCode())
+                    .cateUrl(item.getCateUrl())
+                    .subCategories(category.getBottomLevelCategory(item.getCateCode()))
+                    .build();
+            response.add(dto);
+        }
+
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/product")
     public ResponseEntity<Product> create(ProductDTO dto) throws IOException {
@@ -68,10 +93,10 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @GetMapping("/product")
-    public ResponseEntity<List<Product>> viewAll(@RequestParam(name = "category", required = false) Integer category, @RequestParam(name = "page", defaultValue = "1") int page) {
+    @GetMapping("/public/product")
+    public ResponseEntity<List<Product>> viewAll(@RequestParam(name="category", required = false) Integer category, @RequestParam(name="page", defaultValue = "1") int page) {
         Sort sort = Sort.by("prodCode").descending();
-        Pageable pageable = PageRequest.of(page - 1, 10, sort);
+        Pageable pageable = PageRequest.of(page-1, 10, sort);
 
         // QueryDSL
         // 1. 가장 먼저 동적 처리하기 위한 Q도메인 클래스 얻어오기
@@ -81,7 +106,7 @@ public class ProductController {
         // 2. BooleanBuilder : where문에 들어가는 조건들을 넣어주는 컨테이너
         BooleanBuilder builder = new BooleanBuilder();
 
-        if (category != null) {
+        if(category!=null) {
             // 3. 원하는 조건은 필드값과 같이 결합해서 생성
             BooleanExpression expression = qProduct.category.cateCode.eq(category);
 
@@ -110,7 +135,7 @@ public class ProductController {
         // 기존 데이터를 가져와야 하는 상황!
         Product prev = product.view(dto.getProdCode());
 
-        if (dto.getFile().isEmpty()) {
+        if(dto.getFile().isEmpty()) {
             // 만약 새로운 사진이 없는 경우 -> 기존 사진 경로 그대로 vo로 담아내야 한다!
             vo.setProdPhoto(prev.getProdPhoto());
         } else {
@@ -135,7 +160,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/product/{code}")
-    public ResponseEntity<Product> delete(@PathVariable(name = "code") int code) {
+    public ResponseEntity<Product> delete(@PathVariable(name="code") int code) {
         // 파일 삭제 로직
         Product prev = product.view(code);
         File file = new File(prev.getProdPhoto());
@@ -148,7 +173,7 @@ public class ProductController {
     }
 
     // 상품 1개 조회
-    @GetMapping("/product/{code}")
+    @GetMapping("public/product/{code}")
     public ResponseEntity<Product> view(@PathVariable(name = "code") int code) {
         Product vo = product.view(code);
         return ResponseEntity.status(HttpStatus.OK).body(vo);
@@ -163,7 +188,7 @@ public class ProductController {
         Authentication authentication = securityContext.getAuthentication();
         Object principal = authentication.getPrincipal();
 
-        if (principal instanceof User) {
+        if(principal instanceof User) {
             User user = (User) principal;
             vo.setUser(user);
             return ResponseEntity.ok(comment.create(vo));
@@ -174,27 +199,28 @@ public class ProductController {
 
     // 상품 1개에 따른 댓글 조회 -> 전체 다 보여줘야 하는 상황!
     @GetMapping("/public/product/{code}/comment")
-    public ResponseEntity<List<ProductCommentDTO>> viewComment(@PathVariable(name = "code") int code) {
+    public ResponseEntity<List<ProductCommentDTO>> viewComment(@PathVariable(name="code") int code) {
         List<ProductComment> topList = comment.getTopLevelComments(code);
         List<ProductCommentDTO> response = commentDetailList(topList, code);
 
         return ResponseEntity.ok(response);
     }
 
-    public List<ProductCommentDTO> commentDetailList(List<ProductComment> comments, int code){
+    public List<ProductCommentDTO> commentDetailList(List<ProductComment> comments, int code) {
         List<ProductCommentDTO> response = new ArrayList<>();
 
-        for (ProductComment item : comments) {
+        for(ProductComment item : comments) {
             List<ProductComment> replies = comment.getRepliesComments(item.getProComCode(), code);
             List<ProductCommentDTO> repliesDTO = commentDetailList(replies, code);
             ProductCommentDTO dto = commentDetail(item);
             dto.setReplies(repliesDTO);
             response.add(dto);
         }
-            return response;
+
+        return response;
     }
 
-    public ProductCommentDTO commentDetail(ProductComment vo){
+    public ProductCommentDTO commentDetail(ProductComment vo) {
         return ProductCommentDTO.builder()
                 .prodCode(vo.getProdCode())
                 .proComCode(vo.getProComCode())
@@ -206,6 +232,5 @@ public class ProductController {
                         .build())
                 .build();
     }
-
 
 }
